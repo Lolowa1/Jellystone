@@ -1,7 +1,7 @@
 import java.awt.*;
 import javax.swing.*;
 
-public class ForestPanel extends JPanel {
+public class ForestPanel extends JPanel implements ForestObserver {
 
     private Forest forest;
 
@@ -26,10 +26,14 @@ public class ForestPanel extends JPanel {
         fireImage = new ImageIcon("images/fire.png").getImage();
         lightningImage = new ImageIcon("images/lightning.png").getImage();
     }
-
     @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
+    public void forestUpdated(Forest forest) {
+        repaint();
+    }
+
+   @Override
+   protected void paintComponent(Graphics g) {
+    super.paintComponent(g);
 
         Cell[][] grid = forest.getGrid();
 

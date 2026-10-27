@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class Forest {
@@ -11,6 +13,7 @@ public class Forest {
     private Wind wind;
 
     private Random random = new Random();
+    private final List<ForestObserver> observers = new ArrayList<>();
 
     public Forest(int rows, int columns) {
 
@@ -44,6 +47,26 @@ public class Forest {
         return grid;
     }
 
+    public void addObserver(ForestObserver observer) {
+        if (observer == null) {
+            throw new IllegalArgumentException("Observer cannot be null");
+        }
+
+        if (!observers.contains(observer)) {
+            observers.add(observer);
+        }
+    }
+
+    public void removeObserver(ForestObserver observer) {
+        observers.remove(observer);
+    }
+
+    private void notifyObservers() {
+        for (ForestObserver observer : new ArrayList<>(observers)) {
+            observer.forestUpdated(this);
+        }
+    }
+
     public void setWind(Wind wind) {
         this.wind = wind;
         wind.applyWind(this);
@@ -54,11 +77,10 @@ public class Forest {
     }
 
     public void update() {
-
         spreadFire();
         advanceBurningTrees();
+        notifyObservers();
     }
-
 
     private void advanceBurningTrees() {
 
@@ -83,7 +105,6 @@ public class Forest {
         }
     }
 
-    
     private void spreadFire() {
 
         boolean[][] igniteNext =

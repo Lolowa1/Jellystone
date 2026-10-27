@@ -43,6 +43,7 @@ public class Main {
         JFrame window = new JFrame("Forest Fire Simulation");
 
         ForestPanel panel = new ForestPanel(forest, lightning);
+        forest.addObserver(panel);
 
         window.add(panel);
 
@@ -51,13 +52,9 @@ public class Main {
         window.setLocationRelativeTo(null);
         window.setVisible(true);
 
-        Timer timer = new Timer(500, event -> {
-
-            forest.update();
-
-            panel.repaint();
-
-        });
+    Timer timer = new Timer(500, event -> {
+    forest.update();
+});
 
         timer.start();
     }
