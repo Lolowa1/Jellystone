@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -45,6 +46,15 @@ public class Forest {
 
     public Cell[][] getGrid() {
         return grid;
+    }
+
+    public long getBurningTreeCount() {
+        return Arrays.stream(grid)
+                .flatMap(Arrays::stream)
+                .filter(Cell::hasTree)
+                .map(Cell::getTree)
+                .filter(Tree::isBurning)
+                .count();
     }
 
     public void addObserver(ForestObserver observer) {

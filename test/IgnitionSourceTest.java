@@ -106,7 +106,6 @@ public class IgnitionSourceTest {
         // With a 3-column wavelength, only the wave troughs (columns 2
         // and 5) fall below the 0.4 threshold and ignite immediately.
         int[] troughColumns = {2, 5};
-        int[] crestColumns = {0, 1, 3, 4};
 
         for (int col : troughColumns) {
             check(
@@ -116,82 +115,75 @@ public class IgnitionSourceTest {
         }
     }
 
-private static void testIgnitionSourcePolymorphism() {
-    IgnitionSource[] sources = {
-            new Arson(0, 0),
-            new Lightning(),
-            new Backburning(0)
-    };
+    private static void testIgnitionSourcePolymorphism() {
+        IgnitionSource[] sources = {
+                new Arson(0, 0),
+                new Lightning(),
+                new Backburning(0)
+        };
 
-    for (IgnitionSource source : sources) {
-        Forest forest = new Forest(1, 6);
+        for (IgnitionSource source : sources) {
+            Forest forest = new Forest(1, 6);
 
-        for (int col = 0; col < 6; col++) {
-            forest.getGrid()[0][col].plantTree(new Tree(0.9));
+            for (int col = 0; col < 6; col++) {
+                forest.getGrid()[0][col].plantTree(new Tree(0.9));
+            }
+
+            source.ignite(forest);
+
+            check(
+                    hasBurningTree(forest),
+                    source.getClass().getSimpleName()
+                            + " should ignite through an IgnitionSource reference"
+            );
         }
+    }
 
-        source.ignite(forest);
+    private static boolean hasBurningTree(Forest forest) {
+        return forest.getBurningTreeCount() > 0;
+    }
+
+    private static void testRejectsInvalidSeverity() {
+        boolean exceptionThrown = false;
+
+        try {
+            new TestIgnitionSource(1.1, 0.5);
+        } catch (IllegalArgumentException exception) {
+            exceptionThrown = true;
+        }
 
         check(
-                hasBurningTree(forest),
-                source.getClass().getSimpleName()
-                        + " should ignite through an IgnitionSource reference"
+                exceptionThrown,
+                "Severity above 1.0 should throw an exception"
         );
     }
-}
 
-private static boolean hasBurningTree(Forest forest) {
-    for (Cell[] row : forest.getGrid()) {
-        for (Cell cell : row) {
-            if (cell.hasTree() && cell.getTree().isBurning()) {
-                return true;
-            }
+    private static void testRejectsInvalidSpreadability() {
+        boolean exceptionThrown = false;
+
+        try {
+            new TestIgnitionSource(0.5, -0.1);
+        } catch (IllegalArgumentException exception) {
+            exceptionThrown = true;
+        }
+
+        check(
+                exceptionThrown,
+                "Spreadability below 0.0 should throw an exception"
+        );
+    }
+
+    private static class TestIgnitionSource extends IgnitionSource {
+        TestIgnitionSource(double severity, double spreadability) {
+            super(severity, spreadability);
+        }
+
+        @Override
+        public void ignite(Forest forest) {
+            // No ignition behaviour is needed for constructor validation.
         }
     }
 
-    return false;
-}
-
-private static void testRejectsInvalidSeverity() {
-    boolean exceptionThrown = false;
-
-    try {
-        new TestIgnitionSource(1.1, 0.5);
-    } catch (IllegalArgumentException exception) {
-        exceptionThrown = true;
-    }
-
-    check(
-            exceptionThrown,
-            "Severity above 1.0 should throw an exception"
-    );
-}
-
-private static void testRejectsInvalidSpreadability() {
-    boolean exceptionThrown = false;
-
-    try {
-        new TestIgnitionSource(0.5, -0.1);
-    } catch (IllegalArgumentException exception) {
-        exceptionThrown = true;
-    }
-
-    check(
-            exceptionThrown,
-            "Spreadability below 0.0 should throw an exception"
-    );
-}
-
-private static class TestIgnitionSource extends IgnitionSource {
-    TestIgnitionSource(double severity, double spreadability) {
-        super(severity, spreadability);
-    }
-
-    @Override
-    public void ignite(Forest forest) {
-        // No ignition behaviour is needed for constructor validation.
-    }
-}
     private static void check(boolean condition, String message) {
         if (!condition) {
             throw new AssertionError(message);
