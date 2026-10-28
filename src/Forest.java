@@ -1,7 +1,10 @@
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 public class Forest {
 
@@ -55,6 +58,34 @@ public class Forest {
                 .map(Cell::getTree)
                 .filter(Tree::isBurning)
                 .count();
+    }
+
+    public Map<CellState, Long> getCellStateCounts() {
+        Map<CellState, Long> counts = Arrays.stream(grid)
+                .flatMap(Arrays::stream)
+                .collect(Collectors.groupingBy(
+                        this::classifyCell,
+                        () -> new EnumMap<>(CellState.class),
+                        Collectors.counting()
+                ));
+
+        for (CellState state : CellState.values()) {
+            counts.putIfAbsent(state, 0L);
+        }
+
+        return counts;
+    }
+
+    private CellState classifyCell(Cell cell) {
+        if (!cell.hasTree()) {
+            return CellState.EMPTY;
+        }
+
+        if (cell.getTree().isBurning()) {
+            return CellState.BURNING;
+        }
+
+        return CellState.HEALTHY;
     }
 
     public void addObserver(ForestObserver observer) {
