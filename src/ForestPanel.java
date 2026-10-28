@@ -18,22 +18,19 @@ public class ForestPanel extends JPanel implements ForestObserver {
         this.forest = forest;
         this.lightning = lightning;
 
-        System.out.println(new java.io.File("images/tree.png").exists());
-        System.out.println(new java.io.File("images/fire.png").exists());
-        System.out.println(new java.io.File("images/lightning.png").exists());
-
         treeImage = new ImageIcon("images/tree.png").getImage();
         fireImage = new ImageIcon("images/fire.png").getImage();
         lightningImage = new ImageIcon("images/lightning.png").getImage();
     }
+
     @Override
     public void forestUpdated(Forest forest) {
         repaint();
     }
 
-   @Override
-   protected void paintComponent(Graphics g) {
-    super.paintComponent(g);
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
 
         Cell[][] grid = forest.getGrid();
 
