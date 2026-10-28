@@ -1,5 +1,7 @@
-import javax.swing.*;
+import java.awt.BorderLayout;
 import java.util.Random;
+import javax.swing.JFrame;
+import javax.swing.Timer;
 
 public class Main {
 
@@ -9,7 +11,6 @@ public class Main {
 
         Wind wind = new Wind(30, "EAST", 30, 20, 15);
         forest.setWind(wind);
-
 
         Random random = new Random();
 
@@ -34,27 +35,36 @@ public class Main {
 
         try {
             source.ignite(forest);
+        } catch (IllegalStateException | IllegalArgumentException exception) {
+            System.out.println(
+                    "Ignition failed: " + exception.getMessage()
+            );
         }
-        catch (IllegalStateException | IllegalArgumentException e) {
-            System.out.println("Ignition failed: " + e.getMessage());
-        }
-
 
         JFrame window = new JFrame("Forest Fire Simulation");
 
-        ForestPanel panel = new ForestPanel(forest, lightning);
-        forest.addObserver(panel);
+        ForestPanel forestPanel =
+                new ForestPanel(forest, lightning);
 
-        window.add(panel);
+        ForestStatisticsPanel statisticsPanel =
+                new ForestStatisticsPanel(forest);
+
+        forest.addObserver(forestPanel);
+        forest.addObserver(statisticsPanel);
+
+        window.setLayout(new BorderLayout());
+        window.add(forestPanel, BorderLayout.CENTER);
+        window.add(statisticsPanel, BorderLayout.SOUTH);
 
         window.setSize(900, 600);
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         window.setLocationRelativeTo(null);
         window.setVisible(true);
 
-    Timer timer = new Timer(500, event -> {
-    forest.update();
-});
+        Timer timer = new Timer(
+                500,
+                event -> forest.update()
+        );
 
         timer.start();
     }
