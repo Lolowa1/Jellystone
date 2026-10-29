@@ -76,6 +76,27 @@ public class Forest {
         return counts;
     }
 
+    public Map<CellState, Long> getCellStateCountsParallel() {
+        CellState[] snapshot = Arrays.stream(grid)
+                .flatMap(Arrays::stream)
+                .map(this::classifyCell)
+                .toArray(CellState[]::new);
+
+        Map<CellState, Long> counts = Arrays.stream(snapshot)
+                .parallel()
+                .collect(Collectors.groupingBy(
+                        state -> state,
+                        () -> new EnumMap<>(CellState.class),
+                        Collectors.counting()
+                ));
+
+        for (CellState state : CellState.values()) {
+            counts.putIfAbsent(state, 0L);
+        }
+
+        return counts;
+    }
+
     private CellState classifyCell(Cell cell) {
         if (!cell.hasTree()) {
             return CellState.EMPTY;
