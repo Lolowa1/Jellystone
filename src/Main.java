@@ -1,12 +1,16 @@
 import java.awt.BorderLayout;
 import java.util.Random;
 import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
 public class Main {
 
     public static void main(String[] args) {
+        SwingUtilities.invokeLater(Main::createAndShowSimulation);
+    }
 
+    private static void createAndShowSimulation() {
         Forest forest = new Forest(40, 60);
 
         Wind wind = new Wind(30, "EAST", 30, 20, 15);
